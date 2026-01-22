@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User account for authentication via Better Auth
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions      Session[]
+  accounts      Account[]
+  instaAccounts InstagramAccount[]
+  campaigns     Campaign[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+// Instagram account used for automation
+model InstagramAccount {
+  id           String   @id @default(cuid())
+  userId       String
+  username     String   @unique
+  sessionData  String?  @db.Text // Encrypted Playwright session state
+  isActive     Boolean  @default(true)
+  lastUsedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  campaigns Campaign[]
+  dmLogs    DmLog[]
+
+  @@map("instagram_accounts")
+}
+
+// Scraped Instagram leads
+model Lead {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  fullName     String?
+  bio          String?  @db.Text
+  profileUrl   String?
+  sourceHandle String   // The account from which this lead was scraped
+  scrapedAt    DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  campaignLeads CampaignLead[]
+
+  @@index([sourceHandle])
+  @@map("leads")
+}
+
+// Campaign status enum
+enum CampaignStatus {
+  PENDING
+  RUNNING
+  PAUSED
+  COMPLETED
+  STOPPED
+}
+
+// DM Campaigns
+model Campaign {
+  id                String         @id @default(cuid())
+  userId            String
+  instagramAccountId String
+  name              String
+  messageTemplate   String         @db.Text
+  timezone          String         @default("UTC")
+  workingHoursStart Int            @default(9)  // 24-hour format
+  workingHoursEnd   Int            @default(17) // 24-hour format
+  dailyLimit        Int            @default(50)
+  minDelaySeconds   Int            @default(30)
+  maxDelaySeconds   Int            @default(120)
+  status            CampaignStatus @default(PENDING)
+  sentCount         Int            @default(0)
+  failedCount       Int            @default(0)
+  skippedCount      Int            @default(0)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instagramAccount InstagramAccount @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+  campaignLeads    CampaignLead[]
+  dmLogs           DmLog[]
+
+  @@index([status])
+  @@map("campaigns")
+}
+
+// Association between campaigns and leads
+enum LeadStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+model CampaignLead {
+  id         String     @id @default(cuid())
+  campaignId String
+  leadId     String
+  status     LeadStatus @default(PENDING)
+  processedAt DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  lead     Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, leadId])
+  @@index([status])
+  @@map("campaign_leads")
+}
+
+// DM sending logs (immutable audit trail)
+model DmLog {
+  id                 String           @id @default(cuid())
+  campaignId         String
+  instagramAccountId String
+  leadUsername       String
+  messageContent     String           @db.Text
+  status             LeadStatus
+  errorMessage       String?          @db.Text
+  attemptedAt        DateTime         @default(now())
+
+  campaign         Campaign         @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  instagramAccount InstagramAccount @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@index([attemptedAt])
+  @@map("dm_logs")
+}

@@ -1,0 +1,93 @@
+{
+  "cookies": [
+    {
+      "name": "csrftoken",
+      "value": "q9fbpem6KjyQldCs3Vfehy",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1803680640.679848,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "datr",
+      "value": "fKNyacACmGyrm7gKjcqrv5Qx",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1803680636.703117,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "ig_did",
+      "value": "94FE64BB-E786-4B85-BB45-C5B984CAC98C",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1800656640.680203,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "wd",
+      "value": "1280x720",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1769725440,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "dpr",
+      "value": "1.0000000074505806",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1769725440,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "mid",
+      "value": "aXKjgAALAAEkvVsooEBkD-PubptX",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1803680640.680072,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ig_nrcb",
+      "value": "1",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1800656640.680356,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.instagram.com",
+      "localStorage": [
+        {
+          "name": "Session",
+          "value": "c6yssg:1769120675815"
+        },
+        {
+          "name": "chatd-deviceid",
+          "value": "5bc592d5-7446-4341-9743-f6a11c2db038"
+        },
+        {
+          "name": "IGSession",
+          "value": "iv1mdv:1769122440815"
+        }
+      ]
+    }
+  ]
+}
