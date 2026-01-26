@@ -66,7 +66,7 @@ export default function LeadsPage() {
   } = useLeadsStore();
 
   const [search, setSearch] = useState("");
-  const [source, setSource] = useState<string>("");
+  const [source, setSource] = useState<string>("all");
   const [sources, setSources] = useState<Source[]>([]);
   const [page, setPage] = useState(1);
 
@@ -91,7 +91,7 @@ export default function LeadsPage() {
     setLoading(true);
     try {
       const params: Record<string, string | number> = { page, limit: 50 };
-      if (source) params.source = source;
+      if (source && source !== "all") params.source = source;
       if (search) params.search = search;
 
       const data = await api.get<LeadsResponse>("/api/leads", params);
@@ -162,7 +162,7 @@ export default function LeadsPage() {
               </Button>
             </form>
 
-            <Select value={source || "all"} onValueChange={(val) => setSource(val === "all" ? "" : val)}>
+            <Select value={source} onValueChange={setSource}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="All sources" />
               </SelectTrigger>

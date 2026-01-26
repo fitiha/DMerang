@@ -13,18 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Settings, Globe, Clock, Save, Loader2 } from "lucide-react";
-
-const TIMEZONES = [
-  "UTC",
-  "America/New_York",
-  "America/Los_Angeles",
-  "America/Chicago",
-  "Europe/London",
-  "Europe/Paris",
-  "Asia/Tokyo",
-  "Asia/Singapore",
-  "Australia/Sydney",
-];
+import { TIMEZONES, get12HourOptions, getTimezoneDisplay } from "@/lib/timezones";
 
 export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +48,7 @@ export default function SettingsPage() {
       <Card className="glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Globe className="h-5 w-5 text-purple-500" />
+            <Globe className="h-5 w-5 text-primary" />
             Timezone
           </CardTitle>
           <CardDescription>
@@ -91,7 +80,7 @@ export default function SettingsPage() {
       <Card className="glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Clock className="h-5 w-5 text-purple-500" />
+            <Clock className="h-5 w-5 text-primary" />
             Default Rate Limits
           </CardTitle>
           <CardDescription>
@@ -152,34 +141,41 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <Label>Default Working Hours</Label>
             <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                min={0}
-                max={23}
-                value={settings.defaultWorkingHoursStart}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    defaultWorkingHoursStart: parseInt(e.target.value) || 9,
-                  })
+              <Select
+                value={settings.defaultWorkingHoursStart.toString()}
+                onValueChange={(value) =>
+                  setSettings({ ...settings, defaultWorkingHoursStart: parseInt(value) })
                 }
-                className="w-24"
-              />
-              <span className="text-muted-foreground">:00 to</span>
-              <Input
-                type="number"
-                min={0}
-                max={23}
-                value={settings.defaultWorkingHoursEnd}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    defaultWorkingHoursEnd: parseInt(e.target.value) || 17,
-                  })
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {get12HourOptions().map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value.toString()}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-muted-foreground">to</span>
+              <Select
+                value={settings.defaultWorkingHoursEnd.toString()}
+                onValueChange={(value) =>
+                  setSettings({ ...settings, defaultWorkingHoursEnd: parseInt(value) })
                 }
-                className="w-24"
-              />
-              <span className="text-muted-foreground">:00</span>
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {get12HourOptions().map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value.toString()}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>

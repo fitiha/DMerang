@@ -64,10 +64,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-indigo-500/10 border border-border/50 p-8">
-        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-indigo-500/5" />
+      <div className="relative overflow-hidden rounded-2xl bg-primary/5 border border-border p-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background to-primary/5" />
         <div className="relative">
-          <h2 className="text-2xl font-bold mb-2">
+          <h2 className="text-2xl font-extralight mb-2">
             Ready to grow your reach? 🚀
           </h2>
           <p className="text-muted-foreground max-w-xl">
@@ -76,7 +76,7 @@ export default function DashboardPage() {
           </p>
           <div className="flex gap-3 mt-6">
             <Link href="/dashboard/leads/discover">
-              <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
+              <Button className="bg-primary hover:bg-primary/90">
                 <Users className="mr-2 h-4 w-4" />
                 Find Leads
               </Button>
@@ -90,7 +90,7 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-10">
-          <Zap className="h-40 w-40" />
+          <Zap className="h-40 w-40 text-primary" />
         </div>
       </div>
 
@@ -140,7 +140,7 @@ export default function DashboardPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-purple-500" />
+              <Send className="h-5 w-5 text-primary" />
               Campaign Overview
             </CardTitle>
           </CardHeader>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-purple-500" />
+              <MessageSquare className="h-5 w-5 text-primary" />
               Recent Activity
             </CardTitle>
           </CardHeader>
@@ -236,7 +236,7 @@ export default function DashboardPage() {
       <Card className="glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Instagram className="h-5 w-5 text-purple-500" />
+            <Instagram className="h-5 w-5 text-primary" />
             Connected Accounts
           </CardTitle>
         </CardHeader>
@@ -248,8 +248,8 @@ export default function DashboardPage() {
                   key={account.id}
                   className="flex items-center gap-3 rounded-lg border border-border/50 p-4 transition-all hover:border-border hover:shadow-sm"
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500">
-                    <Instagram className="h-6 w-6 text-white" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                    <Instagram className="h-6 w-6 text-primary" />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">@{account.username}</p>
@@ -307,7 +307,7 @@ function StatCard({
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-3xl font-bold mt-1">{value}</p>
+          <p className="text-3xl font-light mt-1">{value}</p>
           {subtitle && (
             <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
           )}

@@ -193,11 +193,13 @@ class CampaignWorker {
       });
       const currentHour = parseInt(formatter.format(now), 10);
 
-      return (
-        currentHour >= campaign.workingHoursStart &&
-        currentHour < campaign.workingHoursEnd
-      );
-    } catch {
+      const isWithin = currentHour >= campaign.workingHoursStart && currentHour < campaign.workingHoursEnd;
+      
+      console.log(`[Campaign] Working hours check: Current hour in ${campaign.timezone}: ${currentHour}, Range: ${campaign.workingHoursStart}-${campaign.workingHoursEnd}, Within: ${isWithin}`);
+
+      return isWithin;
+    } catch (error) {
+      console.error("[Campaign] Error checking working hours:", error);
       // If timezone parsing fails, assume within working hours
       return true;
     }

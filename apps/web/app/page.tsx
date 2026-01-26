@@ -6,25 +6,23 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Background effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-pink-500/5 via-purple-500/5 to-indigo-500/5" />
-      <div className="fixed top-0 left-1/4 h-96 w-96 rounded-full bg-pink-500/10 blur-3xl" />
-      <div className="fixed bottom-0 right-1/4 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl" />
+      <div className="fixed inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
 
       {/* Header */}
-      <header className="relative border-b border-border/50 backdrop-blur-xl">
+      <header className="relative border-b border-border backdrop-blur-xl bg-background/80">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500">
-              <Instagram className="h-5 w-5 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold text-lg">
+              DM
             </div>
-            <span className="text-xl font-bold gradient-text">InstaAuto</span>
+            <span className="text-xl font-bold text-primary">DMerang</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login">
               <Button variant="ghost">Sign In</Button>
             </Link>
             <Link href="/login">
-              <Button className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600">
+              <Button className="bg-primary hover:bg-primary/90">
                 Get Started
               </Button>
             </Link>
@@ -36,18 +34,18 @@ export default function HomePage() {
       <section className="relative">
         <div className="container mx-auto px-4 py-24 text-center">
           <div className="mx-auto max-w-3xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/50 bg-muted/50 px-4 py-2 text-sm backdrop-blur-sm">
-              <Zap className="h-4 w-4 text-purple-500" />
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-2 text-sm">
+              <Zap className="h-4 w-4 text-primary" />
               <span>Automate your Instagram outreach</span>
             </div>
 
-            <h1 className="text-5xl font-bold leading-tight md:text-6xl lg:text-7xl">
+            <h1 className="text-5xl font-thin leading-tight md:text-6xl lg:text-7xl tracking-tight">
               Scale Your{" "}
-              <span className="gradient-text">Instagram DMs</span>{" "}
+              <span className="text-primary font-light">Instagram DMs</span>{" "}
               Effortlessly
             </h1>
 
-            <p className="mt-6 text-lg text-muted-foreground md:text-xl">
+            <p className="mt-6 text-lg text-muted-foreground md:text-xl font-light">
               Discover leads, create targeted campaigns, and send personalized
               messages at scale. All automated, all from one powerful dashboard.
             </p>
@@ -56,14 +54,14 @@ export default function HomePage() {
               <Link href="/login">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 shadow-lg shadow-purple-500/25 px-8"
+                  className="bg-primary hover:bg-primary/90 shadow-lg px-8 font-light"
                 >
                   Start Automating
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link href="#features">
-                <Button size="lg" variant="outline">
+                <Button size="lg" variant="outline" className="font-light">
                   Learn More
                 </Button>
               </Link>
@@ -72,17 +70,17 @@ export default function HomePage() {
 
           {/* Dashboard preview placeholder */}
           <div className="relative mx-auto mt-16 max-w-5xl">
-            <div className="aspect-video rounded-2xl border border-border/50 bg-card/50 backdrop-blur-xl shadow-2xl shadow-purple-500/10 overflow-hidden">
-              <div className="h-8 border-b border-border/50 bg-muted/30 flex items-center gap-2 px-4">
+            <div className="aspect-video rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+              <div className="h-8 border-b border-border bg-muted flex items-center gap-2 px-4">
                 <div className="h-3 w-3 rounded-full bg-red-500/70" />
                 <div className="h-3 w-3 rounded-full bg-yellow-500/70" />
                 <div className="h-3 w-3 rounded-full bg-green-500/70" />
               </div>
               <div className="p-8 flex items-center justify-center h-full">
-                <p className="text-muted-foreground">Dashboard Preview</p>
+                <p className="text-muted-foreground font-light">Dashboard Preview</p>
               </div>
             </div>
-            <div className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-indigo-500/20 blur-2xl" />
+            <div className="absolute -inset-4 -z-10 rounded-3xl bg-primary/10 blur-2xl" />
           </div>
         </div>
       </section>
@@ -91,9 +89,9 @@ export default function HomePage() {
       <section id="features" className="relative border-t border-border/50 py-24">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h2 className="text-3xl font-bold md:text-4xl">
+            <h2 className="text-3xl font-extralight md:text-4xl">
               Everything you need to{" "}
-              <span className="gradient-text">grow on Instagram</span>
+              <span className="text-primary font-light">grow on Instagram</span>
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
               Powerful features designed for modern Instagram marketing
@@ -132,7 +130,7 @@ export default function HomePage() {
           <Link href="/login">
             <Button
               size="lg"
-              className="mt-8 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 shadow-lg shadow-purple-500/25"
+              className="mt-8 bg-primary hover:bg-primary/90 shadow-lg"
             >
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -144,7 +142,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border/50 py-8">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2026 InstaAuto. Built for demonstration purposes.</p>
+          <p>© 2026 DMerang. Built for demonstration purposes.</p>
         </div>
       </footer>
     </div>
@@ -161,9 +159,9 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="group relative rounded-2xl border border-border/50 bg-card/50 p-8 backdrop-blur-sm transition-all duration-300 hover:border-border hover:shadow-lg hover:shadow-purple-500/5">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500/10 to-purple-500/10 group-hover:from-pink-500/20 group-hover:to-purple-500/20 transition-colors">
-        <Icon className="h-6 w-6 text-purple-500" />
+    <div className="group relative rounded-2xl border border-border bg-card p-8 transition-all duration-300 hover:border-primary/50 hover:shadow-lg">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+        <Icon className="h-6 w-6 text-primary" />
       </div>
       <h3 className="text-xl font-semibold">{title}</h3>
       <p className="mt-2 text-muted-foreground">{description}</p>

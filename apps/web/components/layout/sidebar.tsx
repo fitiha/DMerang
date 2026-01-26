@@ -41,7 +41,7 @@ export function Sidebar() {
           <Instagram className="h-5 w-5 text-white" />
         </div>
         <span className="text-lg font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
-          InstaAuto
+          DMerang
         </span>
       </div>
 

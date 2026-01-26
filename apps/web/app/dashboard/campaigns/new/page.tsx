@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
+import { TIMEZONES, get12HourOptions } from "@/lib/timezones";
 import { useAccountsStore, useLeadsStore, type InstagramAccount, type Lead } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,22 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Send, Loader2, Users, MessageSquare, Clock, ChevronLeft } from "lucide-react";
+import { Send, Loader2, Users, MessageSquare, Clock, ChevronLeft, Filter } from "lucide-react";
 import Link from "next/link";
 
-const TIMEZONES = [
-  "UTC",
-  "America/New_York",
-  "America/Los_Angeles",
-  "America/Chicago",
-  "Europe/London",
-  "Europe/Paris",
-  "Asia/Tokyo",
-  "Asia/Singapore",
-  "Australia/Sydney",
-];
+import { Suspense } from "react";
 
-export default function NewCampaignPage() {
+function NewCampaignContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedLeads = searchParams.get("leads")?.split(",") || [];
@@ -46,6 +37,7 @@ export default function NewCampaignPage() {
   const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(
     new Set(preselectedLeads)
   );
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -94,8 +86,20 @@ export default function NewCampaignPage() {
   };
 
   const selectAllLeads = () => {
-    setSelectedLeadIds(new Set(leads.map((l) => l.id)));
+    const leadsToSelect = sourceFilter === "all" ? leads : leads.filter((l) => l.sourceHandle === sourceFilter);
+    setSelectedLeadIds(new Set(leadsToSelect.map((l) => l.id)));
   };
+
+  const selectBySource = (source: string) => {
+    const sourceLeads = leads.filter((l) => l.sourceHandle === source);
+    setSelectedLeadIds(new Set(sourceLeads.map((l) => l.id)));
+  };
+
+  // Get unique sources
+  const sources = Array.from(new Set(leads.map((l) => l.sourceHandle))).filter(Boolean);
+
+  // Filter leads by source
+  const filteredLeads = sourceFilter === "all" ? leads : leads.filter((l) => l.sourceHandle === sourceFilter);
 
   const clearLeadSelection = () => {
     setSelectedLeadIds(new Set());
@@ -148,7 +152,7 @@ export default function NewCampaignPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-purple-500" />
+              <Send className="h-5 w-5 text-primary" />
               Campaign Details
             </CardTitle>
           </CardHeader>
@@ -168,23 +172,33 @@ export default function NewCampaignPage() {
               </div>
               <div className="space-y-2">
                 <Label>Instagram Account</Label>
-                <Select
-                  value={formData.instagramAccountId}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, instagramAccountId: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select account" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {activeAccounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
-                        @{account.username}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {activeAccounts.length === 0 ? (
+                  <div className="rounded-lg border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+                    No active Instagram accounts. Please add one first.
+                  </div>
+                ) : formData.instagramAccountId ? (
+                  <Select
+                    value={formData.instagramAccountId}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, instagramAccountId: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeAccounts.map((account) => (
+                        <SelectItem key={account.id} value={account.id}>
+                          @{account.username}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="rounded-lg border border-border p-4 text-center text-sm text-muted-foreground">
+                    Loading accounts...
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -194,7 +208,7 @@ export default function NewCampaignPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-purple-500" />
+              <MessageSquare className="h-5 w-5 text-primary" />
               Message Template
             </CardTitle>
             <CardDescription>
@@ -218,7 +232,7 @@ export default function NewCampaignPage() {
         <Card className="glass">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-purple-500" />
+              <Clock className="h-5 w-5 text-primary" />
               Schedule & Limits
             </CardTitle>
           </CardHeader>
@@ -247,33 +261,41 @@ export default function NewCampaignPage() {
               <div className="space-y-2">
                 <Label>Working Hours</Label>
                 <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    max={23}
-                    value={formData.workingHoursStart}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        workingHoursStart: parseInt(e.target.value) || 0,
-                      })
+                  <Select
+                    value={formData.workingHoursStart.toString()}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, workingHoursStart: parseInt(value) })
                     }
-                    className="w-20"
-                  />
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {get12HourOptions().map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value.toString()}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <span className="text-muted-foreground">to</span>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={23}
-                    value={formData.workingHoursEnd}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        workingHoursEnd: parseInt(e.target.value) || 0,
-                      })
+                  <Select
+                    value={formData.workingHoursEnd.toString()}
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, workingHoursEnd: parseInt(value) })
                     }
-                    className="w-20"
-                  />
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {get12HourOptions().map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value.toString()}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="space-y-2">
@@ -332,12 +354,12 @@ export default function NewCampaignPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-purple-500" />
+                <Users className="h-5 w-5 text-primary" />
                 Select Leads ({selectedLeadIds.size} selected)
               </CardTitle>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={selectAllLeads}>
-                  Select All
+                  Select All {sourceFilter !== "all" && "Filtered"}
                 </Button>
                 <Button type="button" variant="ghost" size="sm" onClick={clearLeadSelection}>
                   Clear
@@ -355,23 +377,40 @@ export default function NewCampaignPage() {
                 </Link>
               </div>
             ) : (
-              <ScrollArea className="h-[300px] pr-4">
-                <div className="space-y-2">
-                  {leads.map((lead) => (
+              <>
+                {/* Source Filter */}
+                <div className="mb-4 flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                    <SelectTrigger className="w-64">
+                      <SelectValue placeholder="Filter by source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sources ({leads.length})</SelectItem>
+                      {sources.map((source) => (
+                        <SelectItem key={source} value={source}>
+                          @{source} ({leads.filter((l) => l.sourceHandle === source).length})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <ScrollArea className="h-[300px] pr-4">
+                  <div className="space-y-2">
+                    {filteredLeads.map((lead) => (
                     <div
                       key={lead.id}
-                      className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
+                      className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
                         selectedLeadIds.has(lead.id)
-                          ? "border-purple-500/50 bg-purple-500/5"
+                          ? "border-primary/50 bg-primary/5"
                           : "border-border/50 hover:border-border"
                       }`}
-                      onClick={() => toggleLead(lead.id)}
                     >
                       <Checkbox
                         checked={selectedLeadIds.has(lead.id)}
                         onCheckedChange={() => toggleLead(lead.id)}
                       />
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => toggleLead(lead.id)}>
                         <p className="font-medium">@{lead.username}</p>
                         {lead.bio && (
                           <p className="text-sm text-muted-foreground truncate">
@@ -383,6 +422,7 @@ export default function NewCampaignPage() {
                   ))}
                 </div>
               </ScrollArea>
+              </>
             )}
           </CardContent>
         </Card>
@@ -398,7 +438,7 @@ export default function NewCampaignPage() {
         <div className="flex gap-4">
           <Button
             type="submit"
-            className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+            className="flex-1 bg-primary hover:bg-primary/90"
             disabled={isLoading || !formData.instagramAccountId || selectedLeadIds.size === 0}
           >
             {isLoading ? (
@@ -421,5 +461,13 @@ export default function NewCampaignPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function NewCampaignPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <NewCampaignContent />
+    </Suspense>
   );
 }

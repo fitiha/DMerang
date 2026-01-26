@@ -1,14 +1,8 @@
 import type { Metadata } from "next";
-import { Lexend } from "next/font/google";
 import "./globals.css";
 
-const lexend = Lexend({
-  subsets: ["latin"],
-  variable: "--font-lexend",
-});
-
 export const metadata: Metadata = {
-  title: "InstaAuto - Instagram Automation Dashboard",
+  title: "DMerang - Instagram Automation Dashboard",
   description: "Automate your Instagram DM outreach with smart lead scraping and campaign management",
   keywords: ["Instagram", "automation", "DM", "outreach", "leads", "campaigns"],
 };
@@ -19,8 +13,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${lexend.variable} font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-sans antialiased">
         {children}
       </body>
     </html>
