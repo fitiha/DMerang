@@ -1,4 +1,4 @@
-import { Page } from "playwright";
+import { Page, Locator } from "playwright";
 import { BrowserManager } from "../browser";
 import { config } from "../config";
 
@@ -27,17 +27,21 @@ export class DmSenderService {
 
     try {
       console.log(`[DM] Starting DM to @${options.leadUsername}`);
-      
+
       await this.browserManager.launch();
       await this.browserManager.createContext(sessionId);
       page = await this.browserManager.newPage();
+
+      if (!page) {
+        throw new Error("Failed to create a browser page");
+      }
 
       // Personalize message
       const personalizedMessage = this.personalizeMessage(options.message, {
         username: options.leadUsername,
         fullName: options.leadFullName,
       });
-      
+
       console.log(`[DM] Personalized message: ${personalizedMessage.substring(0, 50)}...`);
 
       // Navigate to user's profile
@@ -46,11 +50,11 @@ export class DmSenderService {
         waitUntil: "domcontentloaded",
         timeout: 60000,
       });
-      
+
       await page.waitForTimeout(2000);
 
       // Check if profile exists
-      const notFoundIndicator = page.locator('text="Sorry, this page isn\'t available."');
+      const notFoundIndicator = page.locator('text="Profile isn\'t available"');
       if (await notFoundIndicator.isVisible({ timeout: 2000 }).catch(() => false)) {
         console.log(`[DM] Profile @${options.leadUsername} not found`);
         return {
@@ -61,165 +65,143 @@ export class DmSenderService {
         };
       }
 
-      // Try to find and click Message button using Playwright's recommended selectors
-      console.log(`[DM] Looking for way to send message...`);
-      
-      // Debug: Log all buttons on the page to help identify selectors
-      try {
-        const allButtons = await page.locator('button').all();
-        console.log(`[DM] Found ${allButtons.length} buttons on the page`);
-        
-        for (let i = 0; i < Math.min(allButtons.length, 10); i++) {
-          const text = await allButtons[i].textContent().catch(() => '');
-          const ariaLabel = await allButtons[i].getAttribute('aria-label').catch(() => '');
-          console.log(`[DM] Button ${i}: text="${text?.trim()}", aria-label="${ariaLabel}"`);
-        }
-      } catch (error) {
-        console.log(`[DM] Error logging buttons:`, error);
-      }
-      
-      let messageOpened = false;
-      
-      // First, try 3-dots menu (for accounts we don't follow - most common case)
-      console.log(`[DM] Trying 3-dots menu first (most common for non-followed accounts)...`);
-      
-      try {
-        // Look for "Options" button (the 3-dots menu)
-        const optionsButton = page.getByRole('button', { name: 'Options' });
-        
-        if (await optionsButton.isVisible({ timeout: 3000 })) {
-          console.log(`[DM] Found Options button, clicking...`);
-          await optionsButton.click();
-          await page.waitForTimeout(1500);
+      // Ensure header loads (profile actions usually live here)
+      await page.waitForSelector("header", { timeout: 10000 });
 
-          // Look for "Send message" in the popup menu
-          const sendMessageButton = page.getByRole('button', { name: 'Send message' });
-          
-          if (await sendMessageButton.isVisible({ timeout: 3000 })) {
-            console.log(`[DM] Found 'Send message' option in menu, clicking...`);
-            await sendMessageButton.click();
-            await page.waitForTimeout(2000);
-            
-            // Handle "Not Now" popup if it appears (for turning on notifications)
-            try {
-              const notNowButton = page.getByRole('button', { name: 'Not Now' });
-              if (await notNowButton.isVisible({ timeout: 2000 })) {
-                console.log(`[DM] Dismissing 'Not Now' popup...`);
-                await notNowButton.click();
-                await page.waitForTimeout(500);
-              }
-            } catch {
-              // No popup, continue
-            }
-            
+      console.log(`[DM] Looking for way to send message...`);
+
+      let messageOpened = false;
+      let messageButtonFound = false;
+      let messageInput: Locator | null = null;
+
+      // ATTEMPT 1: Direct Message Button
+      console.log(`[DM] Attempt 1: Looking for direct Message button...`);
+      try {
+        const messageButton =
+  (await page.getByRole("button", { name: "Message" }).first().isVisible().catch(() => false))
+    ? page.getByRole("button", { name: "Message" }).first()
+    : page.locator('div[role="button"]:has-text("Message")').first();
+
+        if (await messageButton.count()) {
+          messageButtonFound = true;
+          await messageButton.scrollIntoViewIfNeeded();
+          await messageButton.click();
+
+          // Allow dialog to render
+await page.waitForTimeout(1500);
+
+// Wait for DM dialog container to appear
+console.log(`[DM] Waiting for DM dialog...`);
+try {
+  await page.waitForSelector('div[role="dialog"]', { timeout: 15000 });
+  console.log(`[DM] ✅ DM dialog appeared`);
+} catch {
+  console.log(`[DM] ❌ DM dialog did not appear`);
+}
+
+// If notifications modal appears, dismiss it and continue
+await this.dismissNotificationModal(page);
+
+// Extra wait after dismissing modal
+await page.waitForTimeout(1000);
+
+// Now wait longer for input to appear
+messageInput = await this.findMessageInput(page, 15000);
+
+          if (messageInput) {
             messageOpened = true;
           } else {
-            console.log(`[DM] 'Send message' option not found in menu`);
+            console.log(`[DM] Clicked Message but input did not appear after wait.`);
           }
         } else {
-          console.log(`[DM] Options button not found`);
+          console.log(`[DM] Direct Message button not found.`);
         }
       } catch (error) {
-        console.log(`[DM] 3-dots menu approach failed:`, error);
+        console.log(`[DM] Attempt 1 failed:`, error);
       }
 
-      // If 3-dots menu didn't work, try direct Message button (for accounts we follow)
-      if (!messageOpened) {
-        console.log(`[DM] 3-dots menu didn't work, trying direct Message button...`);
-        
+      // ATTEMPT 2: Only if Message button was NOT found
+      if (!messageOpened && !messageButtonFound) {
+        console.log(`[DM] Attempt 2: Trying 3-dots menu...`);
         try {
-          const messageButton = page.getByRole('button', { name: 'Message', exact: true });
-          
-          if (await messageButton.isVisible({ timeout: 3000 })) {
-            console.log(`[DM] Found direct Message button, clicking...`);
-            await messageButton.click();
+          const optionsButton = page.getByRole("button", { name: "Options" });
+
+          if (await optionsButton.isVisible({ timeout: 3000 })) {
+            console.log(`[DM] Found Options button, clicking...`);
+            await optionsButton.click();
             await page.waitForTimeout(2000);
-            
-            // Handle "Not Now" popup if it appears
-            try {
-              const notNowButton = page.getByRole('button', { name: 'Not Now' });
-              if (await notNowButton.isVisible({ timeout: 2000 })) {
-                console.log(`[DM] Dismissing 'Not Now' popup...`);
-                await notNowButton.click();
-                await page.waitForTimeout(500);
+
+            const sendMessageButton = page.getByRole("button", { name: "Send message" });
+
+            if (await sendMessageButton.isVisible({ timeout: 3000 })) {
+              console.log(`[DM] Found 'Send message' option, clicking...`);
+              await sendMessageButton.click();
+
+              await page.waitForTimeout(1500);
+              await this.dismissNotificationModal(page);
+
+              messageInput = await this.findMessageInput(page, 12000);
+
+              if (messageInput) {
+                messageOpened = true;
+              } else {
+                console.log(`[DM] Clicked Send message but input did not appear.`);
               }
-            } catch {
-              // No popup, continue
+            } else {
+              console.log(`[DM] 'Send message' option not found in menu`);
             }
-            
-            messageOpened = true;
           } else {
-            console.log(`[DM] Direct Message button not found`);
+            console.log(`[DM] Options (3-dots) button not found`);
           }
         } catch (error) {
-          console.log(`[DM] Direct message approach failed:`, error);
+          console.log(`[DM] Attempt 2 failed:`, error);
         }
       }
 
-      if (!messageOpened) {
-        // Take a screenshot for debugging
-        await page.screenshot({ path: `debug-dm-${options.leadUsername}.png` });
-        console.log(`[DM] Screenshot saved to debug-dm-${options.leadUsername}.png`);
-        console.log(`[DM] Could not open message dialog for @${options.leadUsername}`);
+      if (!messageOpened || !messageInput) {
+        await page.screenshot({ path: `debug-dm-failed-${options.leadUsername}.png` });
+        console.log(`[DM] Failed to open message dialog. Screenshot saved.`);
         return {
           success: false,
           leadUsername: options.leadUsername,
-          error: "Could not open message dialog - may be a private account or restricted",
+          error: "Could not open message dialog",
           timestamp: new Date(),
         };
       }
 
-      // Wait for DM input to be available
-      console.log(`[DM] Waiting for message input...`);
-      
-      // Use the exact selector from codegen
-      const messageTextbox = page.getByRole('textbox', { name: 'Message' });
-      
-      if (!(await messageTextbox.isVisible({ timeout: 10000 }))) {
-        await page.screenshot({ path: `debug-dm-notextbox-${options.leadUsername}.png` });
-        console.log(`[DM] Textbox not found, screenshot saved`);
-        return {
-          success: false,
-          leadUsername: options.leadUsername,
-          error: "Message textbox not found",
-          timestamp: new Date(),
-        };
-      }
+      // Ensure input is focused
+      console.log(`[DM] Focusing message input...`);
+      await messageInput.click();
+      await page.waitForTimeout(1000);
 
-      // Small delay to ensure page is ready
-      await page.waitForTimeout(500 + Math.random() * 500);
-
-      // Type message with human-like delays
+      // Type message with keyboard (reliable for contenteditable)
       console.log(`[DM] Typing message...`);
-      await messageTextbox.click();
-      await this.typeWithDelay(page, messageTextbox, personalizedMessage);
+      // await page.keyboard.type(personalizedMessage, { delay: 40 });
+      await this.typeWithDelay(page, messageInput, personalizedMessage);
 
-      // Send message using the exact selector from codegen
+      // Send message
       console.log(`[DM] Sending message...`);
-      
+      await page.waitForTimeout(500);
+
       try {
-        const sendButton = page.getByRole('button', { name: 'Send' });
-        
+        const sendButton = page.getByRole("button", { name: "Send" });
+
         if (await sendButton.isVisible({ timeout: 3000 })) {
           console.log(`[DM] Found Send button, clicking...`);
           await sendButton.click();
         } else {
-          // Fallback to pressing Enter
           console.log(`[DM] Send button not visible, pressing Enter...`);
-          await page.keyboard.press('Enter');
+          await page.keyboard.press("Enter");
         }
       } catch {
-        // Fallback to pressing Enter
         console.log(`[DM] Error finding Send button, pressing Enter...`);
-        await page.keyboard.press('Enter');
+        await page.keyboard.press("Enter");
       }
 
-      // Wait for message to be sent
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(3000);
 
       console.log(`[DM] Message sent successfully to @${options.leadUsername}`);
 
-      // Save session
       await this.browserManager.saveSession(sessionId);
 
       return {
@@ -238,12 +220,76 @@ export class DmSenderService {
     }
   }
 
+  private async findMessageInput(page: Page, timeoutMs: number): Promise<Locator | null> {
+  const perSelectorTimeout = Math.max(2000, Math.floor(timeoutMs / 5));
+
+  // 1) Best: accessible name "Message"
+  console.log(`[DM] Trying: getByRole("textbox", { name: "Message" })`);
+  const byRole = page.getByRole("textbox", { name: "Message" }).first();
+  if (await byRole.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+    console.log(`[DM] ✅ Found via getByRole("textbox", { name: "Message" })`);
+    return byRole;
+  }
+  console.log(`[DM] ❌ Not found via getByRole`);
+
+  // 2) contenteditable textbox
+  console.log(`[DM] Trying: [contenteditable="true"][role="textbox"]`);
+  const editable = page.locator('[contenteditable="true"][role="textbox"]').first();
+  if (await editable.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+    console.log(`[DM] ✅ Found via contenteditable`);
+    return editable;
+  }
+  console.log(`[DM] ❌ Not found via contenteditable`);
+
+  // 3) generic fallback
+  console.log(`[DM] Trying: div[role="textbox"]`);
+  const generic = page.locator('div[role="textbox"]').first();
+  if (await generic.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+    console.log(`[DM] ✅ Found via div[role="textbox"]`);
+    return generic;
+  }
+  console.log(`[DM] ❌ Not found via div[role="textbox"]`);
+
+  // 4) aria-label fallback
+  console.log(`[DM] Trying: [aria-label="Message"]`);
+  const ariaLabel = page.locator('[aria-label="Message"]').first();
+  if (await ariaLabel.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+    console.log(`[DM] ✅ Found via aria-label`);
+    return ariaLabel;
+  }
+  console.log(`[DM] ❌ Not found via aria-label`);
+
+  // 5) paragraph fallback (from codegen)
+  console.log(`[DM] Trying: getByRole("paragraph")`);
+  const paragraph = page.getByRole("paragraph").first();
+  if (await paragraph.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+    console.log(`[DM] ✅ Found via paragraph (fallback)`);
+    return paragraph;
+  }
+  console.log(`[DM] ❌ Not found via paragraph`);
+
+  return null;
+}
+
+  private async dismissNotificationModal(page: Page): Promise<void> {
+    try {
+      const notNowButton = page.getByRole("button", { name: "Not Now" });
+      if (await notNowButton.isVisible({ timeout: 3000 })) {
+        console.log(`[DM] Dismissing 'Turn on Notifications' modal...`);
+        await notNowButton.click();
+        await page.waitForTimeout(1000);
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
   private personalizeMessage(
     template: string,
     variables: { username: string; fullName?: string }
   ): string {
     let message = template;
-    
+
     message = message.replace(/\{\{username\}\}/g, variables.username);
     message = message.replace(/\{\{name\}\}/g, variables.fullName || variables.username);
     message = message.replace(
@@ -260,15 +306,13 @@ export class DmSenderService {
     text: string
   ): Promise<void> {
     for (const char of text) {
-      // Handle newlines with Shift+Enter to prevent auto-sending
-      if (char === '\n') {
-        await page.keyboard.press('Shift+Enter');
+      if (char === "\n") {
+        await page.keyboard.press("Shift+Enter");
         await page.waitForTimeout(100 + Math.random() * 100);
       } else {
         await element.type(char, { delay: 30 + Math.random() * 70 });
       }
-      
-      // Occasional longer pause to simulate thinking
+
       if (Math.random() < 0.05) {
         await page.waitForTimeout(200 + Math.random() * 300);
       }
@@ -277,7 +321,6 @@ export class DmSenderService {
 
   async getRandomDelay(minSeconds: number, maxSeconds: number): Promise<number> {
     const baseDelay = minSeconds + Math.random() * (maxSeconds - minSeconds);
-    // Add some variance
     const variance = baseDelay * 0.2;
     return Math.floor((baseDelay + (Math.random() - 0.5) * variance) * 1000);
   }
