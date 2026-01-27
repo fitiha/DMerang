@@ -77,41 +77,54 @@ export class DmSenderService {
       // ATTEMPT 1: Direct Message Button
       console.log(`[DM] Attempt 1: Looking for direct Message button...`);
       try {
-        const messageButton =
-  (await page.getByRole("button", { name: "Message" }).first().isVisible().catch(() => false))
-    ? page.getByRole("button", { name: "Message" }).first()
-    : page.locator('div[role="button"]:has-text("Message")').first();
+        const messageButtonByRole = page.getByRole("button", { name: "Message" }).first();
+        const messageButtonByLocator = page.locator('div[role="button"]:has-text("Message")').first();
 
-        if (await messageButton.count()) {
-          messageButtonFound = true;
-          await messageButton.scrollIntoViewIfNeeded();
-          await messageButton.click();
+        let messageButton: Locator | null = null;
 
-          // Allow dialog to render
-await page.waitForTimeout(1500);
+        if (await messageButtonByRole.isVisible({ timeout: 3000 }).catch(() => false)) {
+          messageButton = messageButtonByRole;
+          console.log(`[DM] Found Message button via getByRole`);
+        } else if (await messageButtonByLocator.isVisible({ timeout: 3000 }).catch(() => false)) {
+          messageButton = messageButtonByLocator;
+          console.log(`[DM] Found Message button via locator fallback`);
+        }
 
-// Wait for DM dialog container to appear
-console.log(`[DM] Waiting for DM dialog...`);
-try {
-  await page.waitForSelector('div[role="dialog"]', { timeout: 15000 });
-  console.log(`[DM] ✅ DM dialog appeared`);
-} catch {
-  console.log(`[DM] ❌ DM dialog did not appear`);
-}
+        if (messageButton) {
+          // Wait for page stability before clicking
+          await page.waitForTimeout(500);
 
-// If notifications modal appears, dismiss it and continue
-await this.dismissNotificationModal(page);
+          // Re-check visibility right before clicking
+          if (await messageButton.isVisible().catch(() => false)) {
+            await messageButton.click();
+            console.log(`[DM] Clicked Message button`);
 
-// Extra wait after dismissing modal
-await page.waitForTimeout(1000);
+            // Wait for DM dialog
+            console.log(`[DM] Waiting for DM dialog...`);
+            try {
+              await page.waitForSelector('div[role="dialog"]', { timeout: 15000 });
+              console.log(`[DM] ✅ DM dialog appeared`);
+            } catch {
+              console.log(`[DM] ❌ DM dialog did not appear`);
+            }
 
-// Now wait longer for input to appear
-messageInput = await this.findMessageInput(page, 15000);
+            // Give the notification modal time to animate in
+            await page.waitForTimeout(2000);
 
-          if (messageInput) {
-            messageOpened = true;
+            // Dismiss notification modal if it appears
+            await this.dismissNotificationModal(page);
+            await page.waitForTimeout(1000);
+
+            messageInput = await this.findMessageInput(page, 15000);
+
+            if (messageInput) {
+              messageOpened = true;
+              messageButtonFound = true; // Only set this AFTER success
+            } else {
+              console.log(`[DM] Clicked Message but input did not appear after wait.`);
+            }
           } else {
-            console.log(`[DM] Clicked Message but input did not appear after wait.`);
+            console.log(`[DM] Message button disappeared before click`);
           }
         } else {
           console.log(`[DM] Direct Message button not found.`);
@@ -120,8 +133,8 @@ messageInput = await this.findMessageInput(page, 15000);
         console.log(`[DM] Attempt 1 failed:`, error);
       }
 
-      // ATTEMPT 2: Only if Message button was NOT found
-      if (!messageOpened && !messageButtonFound) {
+      // ATTEMPT 2: Only if Attempt 1 did NOT succeed
+      if (!messageOpened) {
         console.log(`[DM] Attempt 2: Trying 3-dots menu...`);
         try {
           const optionsButton = page.getByRole("button", { name: "Options" });
@@ -137,10 +150,23 @@ messageInput = await this.findMessageInput(page, 15000);
               console.log(`[DM] Found 'Send message' option, clicking...`);
               await sendMessageButton.click();
 
-              await page.waitForTimeout(1500);
-              await this.dismissNotificationModal(page);
+              // Wait for DM dialog FIRST
+              console.log(`[DM] Waiting for DM dialog...`);
+              try {
+                await page.waitForSelector('div[role="dialog"]', { timeout: 15000 });
+                console.log(`[DM] ✅ DM dialog appeared`);
+              } catch {
+                console.log(`[DM] ❌ DM dialog did not appear`);
+              }
 
-              messageInput = await this.findMessageInput(page, 12000);
+              // Give the notification modal time to animate in
+              await page.waitForTimeout(2000);
+
+              // NOW dismiss notification modal (it appears inside the dialog)
+              await this.dismissNotificationModal(page);
+              await page.waitForTimeout(1000);
+
+              messageInput = await this.findMessageInput(page, 15000);
 
               if (messageInput) {
                 messageOpened = true;
@@ -176,7 +202,6 @@ messageInput = await this.findMessageInput(page, 15000);
 
       // Type message with keyboard (reliable for contenteditable)
       console.log(`[DM] Typing message...`);
-      // await page.keyboard.type(personalizedMessage, { delay: 40 });
       await this.typeWithDelay(page, messageInput, personalizedMessage);
 
       // Send message
@@ -221,66 +246,94 @@ messageInput = await this.findMessageInput(page, 15000);
   }
 
   private async findMessageInput(page: Page, timeoutMs: number): Promise<Locator | null> {
-  const perSelectorTimeout = Math.max(2000, Math.floor(timeoutMs / 5));
+    const perSelectorTimeout = Math.max(2000, Math.floor(timeoutMs / 5));
 
-  // 1) Best: accessible name "Message"
-  console.log(`[DM] Trying: getByRole("textbox", { name: "Message" })`);
-  const byRole = page.getByRole("textbox", { name: "Message" }).first();
-  if (await byRole.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
-    console.log(`[DM] ✅ Found via getByRole("textbox", { name: "Message" })`);
-    return byRole;
+    // 1) Best: accessible name "Message"
+    console.log(`[DM] Trying: getByRole("textbox", { name: "Message" })`);
+    const byRole = page.getByRole("textbox", { name: "Message" }).first();
+    if (await byRole.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+      console.log(`[DM] ✅ Found via getByRole("textbox", { name: "Message" })`);
+      return byRole;
+    }
+    console.log(`[DM] ❌ Not found via getByRole`);
+
+    // 2) contenteditable textbox
+    console.log(`[DM] Trying: [contenteditable="true"][role="textbox"]`);
+    const editable = page.locator('[contenteditable="true"][role="textbox"]').first();
+    if (await editable.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+      console.log(`[DM] ✅ Found via contenteditable`);
+      return editable;
+    }
+    console.log(`[DM] ❌ Not found via contenteditable`);
+
+    // 3) generic fallback
+    console.log(`[DM] Trying: div[role="textbox"]`);
+    const generic = page.locator('div[role="textbox"]').first();
+    if (await generic.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+      console.log(`[DM] ✅ Found via div[role="textbox"]`);
+      return generic;
+    }
+    console.log(`[DM] ❌ Not found via div[role="textbox"]`);
+
+    // 4) aria-label fallback
+    console.log(`[DM] Trying: [aria-label="Message"]`);
+    const ariaLabel = page.locator('[aria-label="Message"]').first();
+    if (await ariaLabel.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+      console.log(`[DM] ✅ Found via aria-label`);
+      return ariaLabel;
+    }
+    console.log(`[DM] ❌ Not found via aria-label`);
+
+    // 5) paragraph fallback (from codegen)
+    console.log(`[DM] Trying: getByRole("paragraph")`);
+    const paragraph = page.getByRole("paragraph").first();
+    if (await paragraph.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
+      console.log(`[DM] ✅ Found via paragraph (fallback)`);
+      return paragraph;
+    }
+    console.log(`[DM] ❌ Not found via paragraph`);
+
+    return null;
   }
-  console.log(`[DM] ❌ Not found via getByRole`);
-
-  // 2) contenteditable textbox
-  console.log(`[DM] Trying: [contenteditable="true"][role="textbox"]`);
-  const editable = page.locator('[contenteditable="true"][role="textbox"]').first();
-  if (await editable.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
-    console.log(`[DM] ✅ Found via contenteditable`);
-    return editable;
-  }
-  console.log(`[DM] ❌ Not found via contenteditable`);
-
-  // 3) generic fallback
-  console.log(`[DM] Trying: div[role="textbox"]`);
-  const generic = page.locator('div[role="textbox"]').first();
-  if (await generic.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
-    console.log(`[DM] ✅ Found via div[role="textbox"]`);
-    return generic;
-  }
-  console.log(`[DM] ❌ Not found via div[role="textbox"]`);
-
-  // 4) aria-label fallback
-  console.log(`[DM] Trying: [aria-label="Message"]`);
-  const ariaLabel = page.locator('[aria-label="Message"]').first();
-  if (await ariaLabel.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
-    console.log(`[DM] ✅ Found via aria-label`);
-    return ariaLabel;
-  }
-  console.log(`[DM] ❌ Not found via aria-label`);
-
-  // 5) paragraph fallback (from codegen)
-  console.log(`[DM] Trying: getByRole("paragraph")`);
-  const paragraph = page.getByRole("paragraph").first();
-  if (await paragraph.isVisible({ timeout: perSelectorTimeout }).catch(() => false)) {
-    console.log(`[DM] ✅ Found via paragraph (fallback)`);
-    return paragraph;
-  }
-  console.log(`[DM] ❌ Not found via paragraph`);
-
-  return null;
-}
 
   private async dismissNotificationModal(page: Page): Promise<void> {
     try {
+      console.log(`[DM] Looking for notification modal...`);
+
+      // Wait specifically for "Not Now" button to appear (up to 5 seconds)
       const notNowButton = page.getByRole("button", { name: "Not Now" });
-      if (await notNowButton.isVisible({ timeout: 3000 })) {
-        console.log(`[DM] Dismissing 'Turn on Notifications' modal...`);
+
+      try {
+        await notNowButton.waitFor({ state: "visible", timeout: 5000 });
+        console.log(`[DM] ✅ Found 'Not Now' button, clicking...`);
         await notNowButton.click();
         await page.waitForTimeout(1000);
+        console.log(`[DM] ✅ Dismissed notification modal`);
+        return;
+      } catch {
+        console.log(`[DM] 'Not Now' button did not appear within 5s`);
       }
-    } catch {
-      // Ignore
+
+      // Fallback: try other selectors
+      const fallbackSelectors = [
+        page.getByRole("button", { name: /not now/i }),
+        page.locator('button:has-text("Not Now")'),
+        page.locator('[role="button"]:has-text("Not Now")'),
+      ];
+
+      for (const selector of fallbackSelectors) {
+        if (await selector.isVisible({ timeout: 1000 }).catch(() => false)) {
+          console.log(`[DM] ✅ Found 'Not Now' via fallback, clicking...`);
+          await selector.click();
+          await page.waitForTimeout(1000);
+          console.log(`[DM] ✅ Dismissed notification modal`);
+          return;
+        }
+      }
+
+      console.log(`[DM] No notification modal found`);
+    } catch (error) {
+      console.log(`[DM] Error dismissing modal:`, error);
     }
   }
 

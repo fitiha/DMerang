@@ -5,7 +5,7 @@
       "value": "i5dHpYN0MT_LPxJglhbuRk",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1804064954.996092,
+      "expires": 1804076299.683812,
       "httpOnly": false,
       "secure": true,
       "sameSite": "Lax"
@@ -35,7 +35,7 @@
       "value": "1.0000000074505806",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1770109746,
+      "expires": 1770121086,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
@@ -45,7 +45,7 @@
       "value": "1280x720",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1770109746,
+      "expires": 1770121086,
       "httpOnly": false,
       "secure": true,
       "sameSite": "Lax"
@@ -65,7 +65,7 @@
       "value": "72154774921",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1777280954.99628,
+      "expires": 1777292299.684028,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
@@ -81,16 +81,6 @@
       "sameSite": "None"
     },
     {
-      "name": "rur",
-      "value": "\"NCG\\05472154774921\\0541801040954:01fe3e5f2029b8fa285b92340d30fafc281f90a4d2f1ea4b23d2fe8caf96bb7a73c158fe\"",
-      "domain": ".instagram.com",
-      "path": "/",
-      "expires": -1,
-      "httpOnly": true,
-      "secure": true,
-      "sameSite": "Lax"
-    },
-    {
       "name": "fr",
       "value": "0BpLcrqKqv6MD15U9.AWdjqQFhLx5zeAIQRQSfgVFVGnOvi2O7pE0qvqKhFPDXtb6QQJI.BpeIC7..AAA.0.0.BpeIC7.AWc2iYQf1f8tHgPu81v9szZtUKI",
       "domain": ".facebook.com",
@@ -99,6 +89,16 @@
       "httpOnly": true,
       "secure": true,
       "sameSite": "None"
+    },
+    {
+      "name": "rur",
+      "value": "\"NCG\\05472154774921\\0541801052299:01feb2927d961da6afb9c4bd2a60f70648cce43aac628b12c4ff981f2ab65436a7a91b23\"",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
     }
   ],
   "origins": [
@@ -106,28 +106,36 @@
       "origin": "https://www.instagram.com",
       "localStorage": [
         {
+          "name": "ig_notifications_sessions_dismiss",
+          "value": "{\"currentSessionNumber\":1,\"lastDismissedDate\":\"Tue Jan 27 2026 15:03:47 GMT+0300 (East Africa Time)\"}"
+        },
+        {
           "name": "chatd-deviceid",
-          "value": "d00ca419-72d5-434c-ac41-ce3459666d77"
+          "value": "8b516987-e8eb-4e0d-ba3f-aaf1b15daccf"
         },
         {
           "name": "IGSession",
-          "value": "tz3gt1:1769506866059"
+          "value": "30nty0:1769518135338"
+        },
+        {
+          "name": "CacheStorageVersion",
+          "value": "3b"
         },
         {
           "name": "fr",
           "value": "AViuVZq8b0V5bPxS4SFF_O_LMiK2BECH1fdD5z5eUtqpQkM4w8bKDa5rl5yPKTmrKv5y6c21z2wf7jEcghhDH1hoxZDmaooLRakQXRJxe6ex-5U4X4_zDVOhKggawbSRrAmV3YI"
         },
         {
-          "name": "pixel_fire_ts",
-          "value": "1769504718380"
-        },
-        {
           "name": "pigeon_state",
           "value": "{\"lastDeviceInfoTime\":0}"
         },
         {
+          "name": "pixel_fire_ts",
+          "value": "1769504718380"
+        },
+        {
           "name": "Session",
-          "value": "70fskx:1769505101059"
+          "value": "gclkhc:1769516370337"
         },
         {
           "name": "has_interop_upgraded",
@@ -147,15 +155,19 @@
         },
         {
           "name": "hb_timestamp",
-          "value": "1769504685238"
+          "value": "1769515424814"
         },
         {
           "name": "ig_web_boost_interstitial_nux_viewed",
           "value": "false"
         },
         {
+          "name": "mw_sent_message",
+          "value": "1769516335436"
+        },
+        {
           "name": "signal_flush_timestamp",
-          "value": "1769504685350"
+          "value": "1769515394821"
         }
       ]
     },
@@ -164,7 +176,7 @@
       "localStorage": [
         {
           "name": "Session",
-          "value": "v9gfdl:1769504986485"
+          "value": "2ukmel:1769516325121"
         }
       ]
     }
