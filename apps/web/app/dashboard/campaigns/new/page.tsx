@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { TIMEZONES, get12HourOptions } from "@/lib/timezones";
-import { useAccountsStore, useLeadsStore, type InstagramAccount, type Lead } from "@/lib/store";
+import { useAccountsStore, useLeadsStore, useTemplatesStore, type InstagramAccount, type Lead, type MessageTemplate } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,6 +31,7 @@ function NewCampaignContent() {
 
   const { accounts, setAccounts } = useAccountsStore();
   const { leads, setLeads } = useLeadsStore();
+  const { templates, setTemplates } = useTemplatesStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -57,12 +58,14 @@ function NewCampaignContent() {
 
   async function fetchData() {
     try {
-      const [accountsData, leadsData] = await Promise.all([
+      const [accountsData, leadsData, templatesData] = await Promise.all([
         api.get<InstagramAccount[]>("/api/instagram-accounts"),
         api.get<{ leads: Lead[] }>("/api/leads", { limit: 500 }),
+        api.get<MessageTemplate[]>("/api/message-templates"),
       ]);
       setAccounts(accountsData);
       setLeads(leadsData.leads);
+      setTemplates(templatesData);
       
       const activeAccount = accountsData.find((a) => a.isActive);
       if (activeAccount) {
@@ -207,10 +210,31 @@ function NewCampaignContent() {
         {/* Message Template */}
         <Card className="glass">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              Message Template
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                Message Template
+              </CardTitle>
+              <Select
+                onValueChange={(value) => {
+                  const template = templates.find((t) => t.id === value);
+                  if (template) {
+                    setFormData({ ...formData, messageTemplate: template.content });
+                  }
+                }}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Load template..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <CardDescription>
               Use placeholders: {"{{username}}"}, {"{{name}}"}, {"{{firstName}}"}
             </CardDescription>

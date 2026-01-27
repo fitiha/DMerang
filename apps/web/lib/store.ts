@@ -8,6 +8,8 @@ export interface Lead {
   bio?: string;
   profileUrl?: string;
   sourceHandle: string;
+  followersCount?: number;
+  followingCount?: number;
   scrapedAt: string;
 }
 
@@ -166,6 +168,44 @@ interface AccountsStore {
   setAccounts: (accounts: InstagramAccount[]) => void;
   setLoading: (loading: boolean) => void;
 }
+
+// Message Templates Store
+export interface MessageTemplate {
+  id: string;
+  name: string;
+  content: string;
+  category: string;
+  createdAt: string;
+}
+
+interface TemplatesStore {
+  templates: MessageTemplate[];
+  isLoading: boolean;
+  setTemplates: (templates: MessageTemplate[]) => void;
+  addTemplate: (template: MessageTemplate) => void;
+  updateTemplate: (id: string, template: Partial<MessageTemplate>) => void;
+  removeTemplate: (id: string) => void;
+  setLoading: (loading: boolean) => void;
+}
+
+export const useTemplatesStore = create<TemplatesStore>((set) => ({
+  templates: [],
+  isLoading: false,
+  setTemplates: (templates) => set({ templates }),
+  addTemplate: (template) =>
+    set((state) => ({ templates: [template, ...state.templates] })),
+  updateTemplate: (id, updates) =>
+    set((state) => ({
+      templates: state.templates.map((t) =>
+        t.id === id ? { ...t, ...updates } : t
+      ),
+    })),
+  removeTemplate: (id) =>
+    set((state) => ({
+      templates: state.templates.filter((t) => t.id !== id),
+    })),
+  setLoading: (isLoading) => set({ isLoading }),
+}));
 
 export const useAccountsStore = create<AccountsStore>((set) => ({
   accounts: [],

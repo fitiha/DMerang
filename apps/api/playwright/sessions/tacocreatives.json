@@ -5,7 +5,7 @@
       "value": "i5dHpYN0MT_LPxJglhbuRk",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1804076299.683812,
+      "expires": 1804108909.287623,
       "httpOnly": false,
       "secure": true,
       "sameSite": "Lax"
@@ -35,7 +35,7 @@
       "value": "1.0000000074505806",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1770121086,
+      "expires": 1770153706,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
@@ -45,7 +45,7 @@
       "value": "1280x720",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1770121086,
+      "expires": 1770153706,
       "httpOnly": false,
       "secure": true,
       "sameSite": "Lax"
@@ -65,18 +65,8 @@
       "value": "72154774921",
       "domain": ".instagram.com",
       "path": "/",
-      "expires": 1777292299.684028,
+      "expires": 1777324909.287821,
       "httpOnly": false,
-      "secure": true,
-      "sameSite": "None"
-    },
-    {
-      "name": "sessionid",
-      "value": "72154774921%3AFr7RpYsFUqtQWz%3A23%3AAYgO2ahP55XUBnaQxYEXiC2P4HkzNyJ0rQvzX0QUqQ",
-      "domain": ".instagram.com",
-      "path": "/",
-      "expires": 1801040711.074245,
-      "httpOnly": true,
       "secure": true,
       "sameSite": "None"
     },
@@ -91,8 +81,38 @@
       "sameSite": "None"
     },
     {
+      "name": "sessionid",
+      "value": "72154774921%3AFr7RpYsFUqtQWz%3A23%3AAYhN9sdsMPihXGXVZADB52as05lLs58vKfjEFw5TCw",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1801084680.492524,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ps_l",
+      "value": "1",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1804108903.026851,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ps_n",
+      "value": "1",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1804108903.027831,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
       "name": "rur",
-      "value": "\"NCG\\05472154774921\\0541801052299:01feb2927d961da6afb9c4bd2a60f70648cce43aac628b12c4ff981f2ab65436a7a91b23\"",
+      "value": "\"NCG\\05472154774921\\0541801084908:01fe41f4a815826b12a92df70efb50fbb5a7ad07ebe00b1bdc4a230ba7c3e1afda2c9d4c\"",
       "domain": ".instagram.com",
       "path": "/",
       "expires": -1,
@@ -111,11 +131,11 @@
         },
         {
           "name": "chatd-deviceid",
-          "value": "8b516987-e8eb-4e0d-ba3f-aaf1b15daccf"
+          "value": "12c2ef16-efc9-4691-affa-00cd3287c160"
         },
         {
           "name": "IGSession",
-          "value": "30nty0:1769518135338"
+          "value": "s7iojp:1769550736899"
         },
         {
           "name": "CacheStorageVersion",
@@ -135,7 +155,7 @@
         },
         {
           "name": "Session",
-          "value": "gclkhc:1769516370337"
+          "value": "pvduiw:1769548971899"
         },
         {
           "name": "has_interop_upgraded",
@@ -143,7 +163,7 @@
         },
         {
           "name": "banzai:last_storage_flush",
-          "value": "1769504682933.0999"
+          "value": "1769548679525.0999"
         },
         {
           "name": "caa_feta_onetap_users_migrated",
@@ -155,7 +175,7 @@
         },
         {
           "name": "hb_timestamp",
-          "value": "1769515424814"
+          "value": "1769548713502"
         },
         {
           "name": "ig_web_boost_interstitial_nux_viewed",
@@ -163,11 +183,11 @@
         },
         {
           "name": "mw_sent_message",
-          "value": "1769516335436"
+          "value": "1769548936990"
         },
         {
           "name": "signal_flush_timestamp",
-          "value": "1769515394821"
+          "value": "1769548683570"
         }
       ]
     },
@@ -177,6 +197,15 @@
         {
           "name": "Session",
           "value": "2ukmel:1769516325121"
+        }
+      ]
+    },
+    {
+      "origin": "https://web.facebook.com",
+      "localStorage": [
+        {
+          "name": "Session",
+          "value": "lerilq:1769548944496"
         }
       ]
     }

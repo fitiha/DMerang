@@ -8,6 +8,7 @@ import leadsRouter from "./routes/leads";
 import campaignsRouter from "./routes/campaigns";
 import instagramAccountsRouter from "./routes/instagram-accounts";
 import statsRouter from "./routes/stats";
+import messageTemplatesRouter from "./routes/message-templates";
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -33,6 +34,7 @@ app.use("/api/leads", leadsRouter);
 app.use("/api/campaigns", campaignsRouter);
 app.use("/api/instagram-accounts", instagramAccountsRouter);
 app.use("/api/stats", statsRouter);
+app.use("/api/message-templates", messageTemplatesRouter);
 
 // Health check
 app.get("/api/health", (req, res) => {

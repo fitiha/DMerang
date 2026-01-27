@@ -11,6 +11,7 @@ import {
   Instagram,
   Search,
   LogOut,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Find Leads", href: "/dashboard/leads/discover", icon: Search },
   { name: "My Leads", href: "/dashboard/leads", icon: Users },
   { name: "Campaigns", href: "/dashboard/campaigns", icon: Send },
+  { name: "Message Templates", href: "/dashboard/templates", icon: MessageSquare },
   { name: "Instagram Accounts", href: "/dashboard/accounts", icon: Instagram },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
