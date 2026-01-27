@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Instagram, ArrowRight, Zap, Users, Send, Shield } from "lucide-react";
 
+import { ModeToggle } from "@/components/mode-toggle";
+
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
@@ -18,6 +20,7 @@ export default function HomePage() {
             <span className="text-xl font-bold text-primary">DMerang</span>
           </div>
           <div className="flex items-center gap-4">
+            <ModeToggle />
             <Link href="/login">
               <Button variant="ghost">Sign In</Button>
             </Link>

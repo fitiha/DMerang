@@ -1,55 +1,83 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --color-background: #F0F2F0;
+    --color-foreground: #1a1a1a;
+    --color-card: #ffffff;
+    --color-card-foreground: #1a1a1a;
+    --color-popover: #ffffff;
+    --color-popover-foreground: #1a1a1a;
+    --color-primary: #6B6E84;
+    --color-primary-foreground: #F0F2F0;
+    --color-secondary: #e5e7e5;
+    --color-secondary-foreground: #1a1a1a;
+    --color-muted: #e5e7e5;
+    --color-muted-foreground: #6b6b6b;
+    --color-accent: #e5e7e5;
+    --color-accent-foreground: #1a1a1a;
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #F0F2F0;
+    --color-border: #d4d6d4;
+    --color-input: #d4d6d4;
+    --color-ring: #6B6E84;
+
+    --radius-lg: 0.75rem;
+    --radius-md: 0.5rem;
+    --radius-sm: 0.25rem;
+  }
+
+  :root.dark {
+    --color-background: #0f0f0f;
+    --color-foreground: #F0F2F0;
+    --color-card: #1a1a1a;
+    --color-card-foreground: #F0F2F0;
+    --color-popover: #1a1a1a;
+    --color-popover-foreground: #F0F2F0;
+    --color-primary: #8a8d9e;
+    --color-primary-foreground: #F0F2F0;
+    --color-secondary: #2a2a2a;
+    --color-secondary-foreground: #F0F2F0;
+    --color-muted: #2a2a2a;
+    --color-muted-foreground: #a0a0a0;
+    --color-accent: #2a2a2a;
+    --color-accent-foreground: #F0F2F0;
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #F0F2F0;
+    --color-border: #3a3a3a;
+    --color-input: #3a3a3a;
+    --color-ring: #8a8d9e;
+  }
+}
+
 @theme {
   --font-sans: "Lexend", system-ui, sans-serif;
 
-  /* Light theme colors */
-  --color-background: #F0F2F0;
-  --color-foreground: #1a1a1a;
-  --color-card: #ffffff;
-  --color-card-foreground: #1a1a1a;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #1a1a1a;
-  --color-primary: #5C5F78;
-  --color-primary-foreground: #F0F2F0;
-  --color-secondary: #e5e7e5;
-  --color-secondary-foreground: #1a1a1a;
-  --color-muted: #e5e7e5;
-  --color-muted-foreground: #6b6b6b;
-  --color-accent: #e5e7e5;
-  --color-accent-foreground: #1a1a1a;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #F0F2F0;
-  --color-border: #d4d6d4;
-  --color-input: #d4d6d4;
-  --color-ring: #5C5F78;
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-card: var(--color-card);
+  --color-card-foreground: var(--color-card-foreground);
+  --color-popover: var(--color-popover);
+  --color-popover-foreground: var(--color-popover-foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-secondary: var(--color-secondary);
+  --color-secondary-foreground: var(--color-secondary-foreground);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-destructive: var(--color-destructive);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+  --color-border: var(--color-border);
+  --color-input: var(--color-input);
+  --color-ring: var(--color-ring);
 
-  --radius-lg: 0.75rem;
-  --radius-md: 0.5rem;
-  --radius-sm: 0.25rem;
-}
-
-@theme dark {
-  /* Dark theme colors */
-  --color-background: #0f0f0f;
-  --color-foreground: #F0F2F0;
-  --color-card: #1a1a1a;
-  --color-card-foreground: #F0F2F0;
-  --color-popover: #1a1a1a;
-  --color-popover-foreground: #F0F2F0;
-  --color-primary: #7a7d96;
-  --color-primary-foreground: #F0F2F0;
-  --color-secondary: #2a2a2a;
-  --color-secondary-foreground: #F0F2F0;
-  --color-muted: #2a2a2a;
-  --color-muted-foreground: #a0a0a0;
-  --color-accent: #2a2a2a;
-  --color-accent-foreground: #F0F2F0;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #F0F2F0;
-  --color-border: #3a3a3a;
-  --color-input: #3a3a3a;
-  --color-ring: #7a7d96;
+  --radius-lg: var(--radius-lg);
+  --radius-md: var(--radius-md);
+  --radius-sm: var(--radius-sm);
 }
 
 @layer base {

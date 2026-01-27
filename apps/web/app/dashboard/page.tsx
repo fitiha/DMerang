@@ -67,8 +67,8 @@ export default function DashboardPage() {
       <div className="relative overflow-hidden rounded-2xl bg-primary/5 border border-border p-8">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-background to-primary/5" />
         <div className="relative">
-          <h2 className="text-2xl font-extralight mb-2">
-            Ready to grow your reach? 🚀
+          <h2 className="text-2xl font-extralight mb-2 flex items-center gap-2">
+            Ready to grow your reach? <Zap className="h-6 w-6 text-primary" />
           </h2>
           <p className="text-muted-foreground max-w-xl">
             Discover new leads, create targeted campaigns, and automate your
@@ -102,21 +102,18 @@ export default function DashboardPage() {
           icon={Users}
           trend="+12%"
           trendUp
-          gradient="from-blue-500 to-cyan-500"
         />
         <StatCard
           title="Active Campaigns"
           value={stats?.campaigns.running || 0}
           icon={Send}
           subtitle={`${stats?.campaigns.paused || 0} paused`}
-          gradient="from-purple-500 to-pink-500"
         />
         <StatCard
           title="Messages Today"
           value={stats?.todayMessages.sent || 0}
           icon={MessageSquare}
           subtitle={`${stats?.todayMessages.failed || 0} failed`}
-          gradient="from-green-500 to-emerald-500"
         />
         <StatCard
           title="Success Rate"
@@ -130,7 +127,6 @@ export default function DashboardPage() {
               : 0
           }%`}
           icon={TrendingUp}
-          gradient="from-amber-500 to-orange-500"
         />
       </div>
 
@@ -292,7 +288,6 @@ function StatCard({
   trend,
   trendUp,
   subtitle,
-  gradient,
 }: {
   title: string;
   value: string | number;
@@ -300,7 +295,6 @@ function StatCard({
   trend?: string;
   trendUp?: boolean;
   subtitle?: string;
-  gradient: string;
 }) {
   return (
     <div className="stat-card">
@@ -322,9 +316,9 @@ function StatCard({
           )}
         </div>
         <div
-          className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} opacity-80`}
+          className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10"
         >
-          <Icon className="h-6 w-6 text-white" />
+          <Icon className="h-6 w-6 text-primary" />
         </div>
       </div>
     </div>

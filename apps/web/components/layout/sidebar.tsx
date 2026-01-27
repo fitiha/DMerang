@@ -37,10 +37,10 @@ export function Sidebar() {
     <div className="flex h-full w-64 flex-col border-r border-border/50 bg-card/50 backdrop-blur-xl">
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b border-border/50 px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500">
-          <Instagram className="h-5 w-5 text-white" />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+          <Instagram className="h-5 w-5 text-primary-foreground" />
         </div>
-        <span className="text-lg font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
+        <span className="text-lg font-bold text-primary">
           DMerang
         </span>
       </div>
@@ -49,8 +49,9 @@ export function Sidebar() {
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="space-y-1">
           {navigation.map((item) => {
-            const isActive = pathname === item.href || 
-              (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            const isActive = item.href === "/dashboard" 
+              ? pathname === "/dashboard"
+              : pathname.startsWith(item.href);
             
             return (
               <Link
@@ -59,7 +60,7 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-indigo-500/10 text-foreground shadow-sm"
+                    ? "bg-primary/10 text-primary shadow-sm"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}
               >
@@ -67,13 +68,13 @@ export function Sidebar() {
                   className={cn(
                     "h-5 w-5 transition-colors",
                     isActive
-                      ? "text-purple-500"
+                      ? "text-primary"
                       : "text-muted-foreground group-hover:text-foreground"
                   )}
                 />
                 {item.name}
                 {isActive && (
-                  <div className="ml-auto h-1.5 w-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500" />
+                  <div className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
                 )}
               </Link>
             );

@@ -139,7 +139,7 @@ export default function AccountsPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Instagram className="h-5 w-5 text-purple-500" />
+                <Instagram className="h-5 w-5 text-primary" />
                 Connect Instagram Account
               </DialogTitle>
               <DialogDescription>
@@ -226,8 +226,8 @@ export default function AccountsPage() {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500">
-                      <Instagram className="h-6 w-6 text-white" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Instagram className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <p className="font-semibold">@{account.username}</p>

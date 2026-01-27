@@ -122,7 +122,7 @@ export default function DiscoverLeadsPage() {
       <Card className="glass">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5 text-purple-500" />
+            <Search className="h-5 w-5 text-primary" />
             Scrape Followers
           </CardTitle>
           <CardDescription>
@@ -248,7 +248,7 @@ export default function DiscoverLeadsPage() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+              className="w-full bg-primary hover:bg-primary/90"
               disabled={isLoading || !selectedAccount || !targetUsername}
             >
               {isLoading ? (
